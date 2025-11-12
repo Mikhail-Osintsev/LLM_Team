@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+.env
+
+# OS/IDE
+.DS_Store
+.vscode/
+.ipynb_checkpoints/
+
+data/processed/**
+data/indexes/**
+data/metadata/**
+!data/.gitkeep
+data/indexes/*
+
+
+# Docker
+*.log
