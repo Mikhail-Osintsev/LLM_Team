@@ -5,14 +5,16 @@ WORKDIR /app
 # Быстрые колёса и меньше шума
 ENV PIP_NO_CACHE_DIR=1 \
     PYTHONUNBUFFERED=1 \
-    POETRY_VERSION=1.8.3
+    POETRY_VERSION=2.0.1 \
+    POETRY_VIRTUALENVS_CREATE=false
 
 # Poetry
 RUN pip install "poetry==${POETRY_VERSION}"
 
 # Ставим зависимости до копирования кода (чтобы кэшировалось)
 COPY pyproject.toml poetry.lock* ./
-RUN poetry install --no-interaction --no-ansi
+RUN poetry install --no-interaction --no-ansi --no-root
+
 
 # Теперь код приложения
 COPY app ./app
