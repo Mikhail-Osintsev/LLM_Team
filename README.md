@@ -1,32 +1,57 @@
 # Book RAG (FastAPI + Streamlit + FAISS)
 
-Локальный RAG по книгам. Бэкенд — FastAPI, фронт — Streamlit, векторное хранилище — FAISS.
-Raw книги храним в Git LFS. Индексы и производные файлы не коммитим.
+Небольшой учебный проект: локальный RAG по книгам «Властелин колец».
 
-## Требования
-- Docker + Docker Compose
-- Git LFS установлен локально
+- backend: FastAPI  
+- frontend: Streamlit  
+- векторное хранилище: FAISS  
+- эмбеддинги: `intfloat/multilingual-e5-base` (SentenceTransformers)  
+- книги лежат как PDF в `data/raw/` и хранятся в Git LFS  
+- индексы (`data/indexes/*`) и производные файлы не коммитятся, строятся на месте
 
-## Быстрый старт
+Идея простая:  
+кладёшь книги в `data/raw/` → запускаешь сборку индекса → задаёшь вопросы по содержанию и смотришь релевантные выдержки из текста.
+
+---
+
+## 1. Требования
+
+Минимум для запуска через Docker:
+
+- Docker
+- Docker Compose
+- Git
+- Git LFS
+- Python 3.11
+- Poetry 2.x
+
+## 2. Клонирование репозитория
+
+Репозиторий: `Mikhail-Osintsev/LLM_Team`  
+Этот проект лежит в подкаталоге `book-rag`.
+
+SSH:
 
 ```bash
-# 1) клон
-git clone <URL_репозитория>
-cd book-rag
+git clone git@github.com:Mikhail-Osintsev/LLM_Team.git
+cd LLM_Team/book-rag
 
-# 2) Git LFS (один раз на машине)
+
+Шаг 1. Инициализация Git LFS 
 make lfs-setup
 
-# 3) докачать большие файлы (raw книги) из LFS
+Шаг 2. Докачать большие файлы из LFS
 make lfs-pull
 
-# 4) переменные окружения
+Шаг 3. Переменные окружения
 cp .env.example .env
-# при необходимости поменяй порты/пути, BACKEND_URL для фронта выставляется в docker-compose
 
-# 5) поднять сервисы
+Шаг 4. Поднятие сервисов
 make up
-# если индекса нет, make перед up вызовет ingest и построит индекс
 
-# фронт: http://localhost:8501
-# бэк:   http://localhost:8001, swagger: http://localhost:8001/docs
+Шаг 5. Открыть интерфейс
+	•	фронтенд:
+http://localhost:8501
+	•	бэкенд:
+	•	API: http://localhost:8001
+	•	Swagger: http://localhost:8001/docs
