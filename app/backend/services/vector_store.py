@@ -22,13 +22,13 @@ class FaissStore:                         # класс-обёртка над FAI
     def search(self, q_vec: np.ndarray, k: int = 4):      # поиск по эмбеддингу запроса
         scores, idx = self.index.search(q_vec, k)         # обращаемся к FAISS
         hits = []                                         # сюда сложим (текст, скор)
-        for j, i in enumerate(idx[0]):                    # идём по индексам результатов
-            if i == -1:                                   # защита от пустых
-                continue                                  # пропускаем
-            hits.append((self.chunks[i], float(scores[0][j])))  # добавляем (текст, скор)
-        return hits                                       # возвращаем список результатов
+        for j, i in enumerate(idx[0]):                   
+            if i == -1:                               
+                continue                                  
+            hits.append((self.chunks[i], float(scores[0][j]))) 
+        return hits                                     
 
-store = FaissStore(                                       # создаём глобальный стор
-    index_path=os.path.join(_settings.INDEX_DIR, "index.faiss"),   # путь к индексу
-    meta_path=os.path.join(_settings.INDEX_DIR, "store.pkl")        # путь к метаданным
+store = FaissStore(
+    index_path=os.path.join(_settings.INDEX_DIR, "index.faiss"),
+    meta_path=os.path.join(_settings.INDEX_DIR, "store.pkl"),
 )

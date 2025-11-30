@@ -45,7 +45,7 @@ up:
 		echo "Индекс не найден - строю..."; \
 		$(COMPOSE) run --rm backend poetry run python scripts/ingest.py; \
 	fi
-	$(COMPOSE) up -d
+	$(COMPOSE) up 
 
 down:
 	$(COMPOSE) down
@@ -55,7 +55,7 @@ logs:
 
 rebuild:
 	$(COMPOSE) build --no-cache
-	$(COMPOSE) up -d
+	$(COMPOSE) up 
 
 test:
 	$(PY) pytest -q

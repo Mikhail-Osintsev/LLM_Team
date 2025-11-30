@@ -2,7 +2,9 @@ from fastapi import FastAPI                                # импортиру�
 from pydantic import BaseModel                             # валидация входа/выхода
 from app.backend.services.vector_store import store        # доступ к FAISS
 from app.backend.core.config import get_settings           # настройки
-from app.backend.core.query_processor import answer_question  # логика ответа
+from app.backend.core.rag_graph import run_rag
+
+
 
 app = FastAPI(title="Book RAG API")                        # создаём приложение FastAPI
 settings = get_settings()                                  # читаем настройки
@@ -23,7 +25,12 @@ def _load_index():                                         # функция за
 def health():                                              # функция обработчик
     return {"status": "ok"}                                # простой JSON
 
-@app.post("/ask", response_model=AskResponse)              # основной эндпоинт
-def ask(req: AskRequest):                                  # функция обработчик
-    result = answer_question(req.question, top_k=req.top_k)  # вызываем логику
-    return result                                          # отдаём результат клиенту
+
+
+@app.post("/ask", response_model=AskResponse)
+def ask(req: AskRequest) -> AskResponse:
+    final_state = run_rag(req.question, top_k=req.top_k)
+    return AskResponse(
+        answer=final_state["answer"],
+        passages=final_state["passages"],
+    )

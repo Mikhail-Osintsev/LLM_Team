@@ -1,7 +1,24 @@
-from app.backend.core.retriever import retrieve           # импортируем ретривер
-from app.backend.core.generator import generate_extractive_answer  # импортируем генератор
+# app/backend/core/query_processor.py
+
+from app.backend.core.rag_graph import run_rag
+
 
 def answer_question(query: str, top_k: int = 4) -> dict:
-    passages = retrieve(query, top_k=top_k)               # находим релевантные чанки
-    answer = generate_extractive_answer(query, passages)  # формируем ответ
-    return {"answer": answer, "passages": passages}       # возвращаем структуру для API
+    """
+    Обёртка над графом RAG, которую вызывает FastAPI.
+
+    На вход:
+      - query: вопрос пользователя
+      - top_k: сколько чанков вытаскивать из индекса
+
+    На выход:
+      - dict с полями:
+         - "answer": финальный ответ LLM
+         - "passages": список (текст, скор)
+    """
+    state = run_rag(question=query, top_k=top_k)
+
+    return {
+        "answer": state["answer"],
+        "passages": state["passages"],
+    }
