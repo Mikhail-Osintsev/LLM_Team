@@ -8,6 +8,7 @@ services:
       - ./data:/app/data
       - ~/.cache/huggingface:/root/.cache/huggingface
       - ~/.cache/torch/sentence_transformers:/root/.cache/torch/sentence_transformers
+      - ./app:/app/app
     ports:
       - "8001:8001"
 
@@ -15,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile
+    volumes:
+      - ./app:/app/app
     environment:
       # фронт стучится в backend по сервисному имени из сети compose
       - BACKEND_URL=http://backend:8001
