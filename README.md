@@ -49,25 +49,25 @@
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │              RAG AGENT GRAPH (LangGraph)                  │  │
 │  │                                                           │  │
-│  │  START → Planner → Tools/Generate → END                  │  │
+│  │  START → Planner → Tools/Generate → END                   │  │
 │  │           ↑           │                                   │  │
 │  │           └───────────┘                                   │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │ MCP Tools    │  │  Retriever   │  │  Generator   │         │
-│  │ (retrieve)   │  │  (FAISS +    │  │  (Mistral    │         │
-│  │              │  │  embeddings) │  │   LLM)       │         │
-│  └──────────────┘  └──────────────┘  └──────────────┘         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│  │ MCP Tools    │  │  Retriever   │  │  Generator   │           │
+│  │ (retrieve)   │  │  (FAISS +    │  │  (Mistral    │           │
+│  │              │  │  embeddings) │  │   LLM)       │           │
+│  └──────────────┘  └──────────────┘  └──────────────┘           │
 └─────────────────────┬───────────────────────────────────────────┘
                       │
                       ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                   DATA LAYER                                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │  FAISS Index │  │  Metadata    │  │  PDF Books   │         │
-│  │  (vectors)   │  │  (JSON)      │  │  (Git LFS)   │         │
-│  └──────────────┘  └──────────────┘  └──────────────┘         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│  │  FAISS Index │  │  Metadata    │  │  PDF Books   │           │
+│  │  (vectors)   │  │  (JSON)      │  │  (Git LFS)   │           │
+│  └──────────────┘  └──────────────┘  └──────────────┘           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -433,9 +433,9 @@ MIT
 
 ## 9. Авторы
 
-Mikhail Osintsev - [a89150242288@gmail.com](mailto:a89150242288@gmail.com)
-Andrey Ivanov - [cashman2100@gmail.com](mailto:cashman2100@gmail.com)
-Dmitriy Zolotukhin - [zolotukhind44@gmail.com](mailto:zolotukhind44@gmail.com)
+- Mikhail Osintsev - [a89150242288@gmail.com](mailto:a89150242288@gmail.com)
+- Andrey Ivanov - [cashman2100@gmail.com](mailto:cashman2100@gmail.com)
+- Dmitriy Zolotukhin - [zolotukhind44@gmail.com](mailto:zolotukhind44@gmail.com)
 
 ---
 
