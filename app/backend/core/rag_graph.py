@@ -171,10 +171,23 @@ def tools_node(state: RAGState) -> Dict[str, Any]:
     passages = result.get("passages")
 
     if passages:
-        full_text = "\n\n---\n\n".join(
-            f"[score={score:.3f}]\n{text}"
-            for text, score in passages
-        )
+        # Поддержка нового формата с метаданными (text, score, metadata)
+        passage_texts = []
+        for passage_data in passages:
+            if len(passage_data) == 3:
+                text, score, metadata = passage_data
+                book_name = metadata.get("book_name", "")
+                page_number = metadata.get("page_number", 0)
+                if book_name and page_number:
+                    passage_texts.append(f"[score={score:.3f}, {book_name}, стр. {page_number}]\n{text}")
+                else:
+                    passage_texts.append(f"[score={score:.3f}]\n{text}")
+            else:
+                # Старый формат (text, score)
+                text, score = passage_data
+                passage_texts.append(f"[score={score:.3f}]\n{text}")
+
+        full_text = "\n\n---\n\n".join(passage_texts)
         tool_msg = (
             f"Результат инструмента {tool_name!r} с аргументами {tool_args!r}:\n"
             f"{full_text}"
