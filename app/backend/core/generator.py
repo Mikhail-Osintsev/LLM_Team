@@ -8,15 +8,15 @@
 - возвращает финальный ответ как строку.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any, Union
 from langchain_core.language_models.chat_models import BaseChatModel
 
 
-def build_rag_prompt(question: str, passages: List[Tuple[str, float]]) -> str:
+def build_rag_prompt(question: str, passages: Union[List[Tuple[str, float]], List[Tuple[str, float, Dict[str, Any]]]]) -> str:
     """
     Строим простой текстовый промпт для RAG.
 
-    passages: список (текст чанка, скор).
+    passages: список (текст чанка, скор) или (текст, скор, метаданные).
     Мы аккуратно форматируем контекст, чтобы LLM было понятно,
     откуда взялись выдержки.
     """
@@ -29,9 +29,22 @@ def build_rag_prompt(question: str, passages: List[Tuple[str, float]]) -> str:
         )
 
     context_lines = []
-    for i, (text, score) in enumerate(passages, start=1):
-        snippet = text.strip().replace("\n", " ")
-        context_lines.append(f"[{i}] score={score:.3f}: {snippet}")
+    for i, passage_data in enumerate(passages, start=1):
+        if len(passage_data) == 3:
+            # Новый формат: (text, score, metadata)
+            text, score, metadata = passage_data
+            snippet = text.strip().replace("\n", " ")
+            book_name = metadata.get("book_name", "")
+            page_number = metadata.get("page_number", 0)
+            if book_name and page_number:
+                context_lines.append(f"[{i}] ({book_name}, стр. {page_number}) score={score:.3f}: {snippet}")
+            else:
+                context_lines.append(f"[{i}] score={score:.3f}: {snippet}")
+        else:
+            # Старый формат: (text, score)
+            text, score = passage_data
+            snippet = text.strip().replace("\n", " ")
+            context_lines.append(f"[{i}] score={score:.3f}: {snippet}")
 
     context_block = "\n".join(context_lines)
 
@@ -52,7 +65,7 @@ def build_rag_prompt(question: str, passages: List[Tuple[str, float]]) -> str:
 def generate_answer_from_passages(
     llm: BaseChatModel,
     question: str,
-    passages: List[Tuple[str, float]],
+    passages: Union[List[Tuple[str, float]], List[Tuple[str, float, Dict[str, Any]]]],
 ) -> str:
     """
     Основная функция генерации:
