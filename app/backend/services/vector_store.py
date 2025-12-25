@@ -2,9 +2,11 @@ import os                                 # работа с путями
 import pickle                             # сохранение метаданных
 import faiss                              # FAISS индекс
 import numpy as np                        # массивы
+from typing import List, Dict, Any, Tuple
 from app.backend.core.config import get_settings  # настройки
 
 _settings = get_settings()                # грузим настройки
+
 
 class FaissStore:                         # класс-обёртка над FAISS
     def __init__(self, index_path: str, meta_path: str):  # конструктор принимает пути
@@ -12,21 +14,49 @@ class FaissStore:                         # класс-обёртка над FAI
         self.meta_path = meta_path                        # путь к store.pkl
         self.index = None                                 # тут будет индекс
         self.chunks: list[str] = []                       # тут будут тексты чанков
+        self.metadata: List[Dict[str, Any]] = []          # метаданные для каждого чанка
 
     def load(self) -> None:                               # метод загрузки индекса
         self.index = faiss.read_index(self.index_path)    # читаем FAISS с диска
         with open(self.meta_path, "rb") as f:             # открываем метаданные
             meta = pickle.load(f)                         # читаем словарь
             self.chunks = meta["chunks"]                  # берём список чанков
+            # Загружаем метаданные если они есть
+            self.metadata = meta.get("metadata", [])
 
-    def search(self, q_vec: np.ndarray, k: int = 4):      # поиск по эмбеддингу запроса
+    def search(self, q_vec: np.ndarray, k: int = 4) -> List[Tuple[str, float, Dict[str, Any]]]:
+        """
+        Поиск по эмбеддингу запроса
+        Возвращает список кортежей (текст, скор, метаданные)
+        """
         scores, idx = self.index.search(q_vec, k)         # обращаемся к FAISS
-        hits = []                                         # сюда сложим (текст, скор)
-        for j, i in enumerate(idx[0]):                   
-            if i == -1:                               
-                continue                                  
-            hits.append((self.chunks[i], float(scores[0][j]))) 
-        return hits                                     
+        hits = []                                         # сюда сложим результаты
+        for j, i in enumerate(idx[0]):
+            if i == -1:
+                continue
+
+            # Получаем метаданные если они есть
+            chunk_metadata = {}
+            if self.metadata and i < len(self.metadata):
+                chunk_metadata = self.metadata[i]
+
+            hits.append((
+                self.chunks[i],
+                float(scores[0][j]),
+                chunk_metadata
+            ))
+        return hits
+
+    def search_legacy(self, q_vec: np.ndarray, k: int = 4):
+        """Старый метод для обратной совместимости, возвращает только (текст, скор)"""
+        scores, idx = self.index.search(q_vec, k)
+        hits = []
+        for j, i in enumerate(idx[0]):
+            if i == -1:
+                continue
+            hits.append((self.chunks[i], float(scores[0][j])))
+        return hits
+
 
 store = FaissStore(
     index_path=os.path.join(_settings.INDEX_DIR, "index.faiss"),
