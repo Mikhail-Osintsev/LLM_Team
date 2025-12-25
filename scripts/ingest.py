@@ -8,7 +8,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 def main():
     s = get_settings()
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=80)
 
     # Загружаем страницы с метаданными
     pages = load_raw_texts_with_metadata(s.RAW_DIR)
