@@ -49,20 +49,11 @@ class MCPClient:
 
 
 
-def retrieve_tool(query: str, top_k: int = 4) -> Dict[str, Any]:
-    """
-    Обёртка над локальной функцией retrieve, чтобы она стала MCP-тулом.
+def retrieve_tool(query: str = "", top_k: int = 4) -> Dict[str, Any]:
+    # Иногда LLM вызывает tool без обязательных аргументов — не падаем.
+    if not isinstance(query, str) or not query.strip():
+        return {"passages": []}
 
-    Возвращаем dict, который потом просто сольётся в state графа.
-    """
-    passages = retrieve(query, top_k=top_k) 
-    return {"passages": passages}  
-
-
-
-mcp_server = MCPServer()  
-
-def retrieve_tool(query: str, top_k: int = 4) -> Dict[str, Any]:
     passages = retrieve(query, top_k=top_k)
     return {"passages": passages}
 
@@ -109,4 +100,4 @@ def call_tool_from_llm(name: str, args: Dict[str, Any]) -> Dict[str, Any]:
     Удобная обёртка: вызвать инструмент по имени с аргументами.
     Тоже легко заменить на реальный протокол в будущем.
     """
-    return mcp_client.run_tool(name, args)  
+    return mcp_client.run_tool(name, args) 

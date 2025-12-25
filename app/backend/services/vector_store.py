@@ -17,6 +17,18 @@ class FaissStore:                         # класс-обёртка над FAI
         self.metadata: List[Dict[str, Any]] = []          # метаданные для каждого чанка
 
     def load(self) -> None:                               # метод загрузки индекса
+        # Явно проверяем, что файлы индекса существуют — иначе будет понятная ошибка
+        if not os.path.exists(self.index_path):
+            raise FileNotFoundError(
+                f"FAISS index file not found: {self.index_path}. "
+                f"You need to build the index first or set INDEX_DIR correctly."
+            )
+        if not os.path.exists(self.meta_path):
+            raise FileNotFoundError(
+                f"FAISS metadata file not found: {self.meta_path}. "
+                f"You need to build the index first or set INDEX_DIR correctly."
+            )
+
         self.index = faiss.read_index(self.index_path)    # читаем FAISS с диска
         with open(self.meta_path, "rb") as f:             # открываем метаданные
             meta = pickle.load(f)                         # читаем словарь
@@ -24,11 +36,17 @@ class FaissStore:                         # класс-обёртка над FAI
             # Загружаем метаданные если они есть
             self.metadata = meta.get("metadata", [])
 
+    def _ensure_loaded(self) -> None:
+        """Ленивая загрузка индекса перед поиском."""
+        if self.index is None:
+            self.load()
+
     def search(self, q_vec: np.ndarray, k: int = 4) -> List[Tuple[str, float, Dict[str, Any]]]:
         """
         Поиск по эмбеддингу запроса
         Возвращает список кортежей (текст, скор, метаданные)
         """
+        self._ensure_loaded()
         scores, idx = self.index.search(q_vec, k)         # обращаемся к FAISS
         hits = []                                         # сюда сложим результаты
         for j, i in enumerate(idx[0]):
@@ -49,6 +67,7 @@ class FaissStore:                         # класс-обёртка над FAI
 
     def search_legacy(self, q_vec: np.ndarray, k: int = 4):
         """Старый метод для обратной совместимости, возвращает только (текст, скор)"""
+        self._ensure_loaded()
         scores, idx = self.index.search(q_vec, k)
         hits = []
         for j, i in enumerate(idx[0]):
