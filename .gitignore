@@ -21,3 +21,6 @@ data/indexes/*
 
 # Docker
 *.log
+# evaluation artifacts
+/evaluation/results/
+/evaluation/datasets/validation.json

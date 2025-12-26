@@ -1,5 +1,10 @@
 from functools import lru_cache
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# app/backend/core/config.py -> repo root is 3 levels up from "core"
+BASE_DIR = Path(__file__).resolve().parents[3]
+DATA_DIR = BASE_DIR / "data"
 
 class Settings(BaseSettings):
     # --- backend ---
@@ -8,9 +13,9 @@ class Settings(BaseSettings):
 
     # --- embeddings / data paths ---
     EMBEDDING_MODEL: str = "intfloat/multilingual-e5-base"
-    INDEX_DIR: str = "./data/indexes"      # локально: ./..., в Docker: /app/data/...
-    PROCESSED_DIR: str = "./data/processed"
-    RAW_DIR: str = "./data/raw"
+    INDEX_DIR: str = str(DATA_DIR / "indexes")      # можно переопределить через .env
+    PROCESSED_DIR: str = str(DATA_DIR / "processed")
+    RAW_DIR: str = str(DATA_DIR / "raw")
 
     # --- frontend (чтобы .env не ругался) ---
     FRONTEND_HOST: str = "0.0.0.0"
